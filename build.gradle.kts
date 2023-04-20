@@ -9,7 +9,7 @@ plugins {
     id("com.github.johnrengelman.shadow")
 }
 
-group = "org.ecorous.template"
+group = "org.ecorous.webcrawler"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -41,7 +41,7 @@ dependencies {
 
 application {
     // This is deprecated, but the Shadow plugin requires it
-    mainClassName = "org.ecorous.template.AppKt"
+    mainClassName = "org.ecorous.webcrawler.AppKt"
 }
 
 tasks.withType<KotlinCompile> {
@@ -54,13 +54,13 @@ tasks.withType<KotlinCompile> {
 tasks.jar {
     manifest {
         attributes(
-            "Main-Class" to "org.ecorous.template.AppKt"
+            "Main-Class" to "org.ecorous.webcrawler.AppKt"
         )
     }
 }
 
 java {
     // Current LTS version of Java
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
