@@ -6,12 +6,10 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
 
-    id("com.github.jakemarsden.git-hooks")
     id("com.github.johnrengelman.shadow")
-    id("io.gitlab.arturbosch.detekt")
 }
 
-group = "template"
+group = "org.ecorous.template"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -30,8 +28,6 @@ repositories {
 }
 
 dependencies {
-    detektPlugins(libs.detekt)
-
     implementation(libs.kord.extensions)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kx.ser)
@@ -45,18 +41,12 @@ dependencies {
 
 application {
     // This is deprecated, but the Shadow plugin requires it
-    mainClassName = "template.AppKt"
-}
-
-gitHooks {
-    setHooks(
-        mapOf("pre-commit" to "detekt")
-    )
+    mainClassName = "org.ecorous.template.AppKt"
 }
 
 tasks.withType<KotlinCompile> {
     // Current LTS version of Java
-    kotlinOptions.jvmTarget = "11"
+    kotlinOptions.jvmTarget = "17"
 
     kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
 }
@@ -64,7 +54,7 @@ tasks.withType<KotlinCompile> {
 tasks.jar {
     manifest {
         attributes(
-            "Main-Class" to "template.AppKt"
+            "Main-Class" to "org.ecorous.template.AppKt"
         )
     }
 }
@@ -73,9 +63,4 @@ java {
     // Current LTS version of Java
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
-}
-
-detekt {
-    buildUponDefaultConfig = true
-    config = rootProject.files("detekt.yml")
 }

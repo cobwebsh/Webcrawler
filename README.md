@@ -1,6 +1,6 @@
 # KordEx Bot Template
 
-This repository contains a basic KordEx example bot for you to use as a template for your own KordEx bots. This
+This repository contains a basic KordEx example bot for you to use as a org.ecorous.template for your own KordEx bots. This
 includes the following:
 
 * A basic extension that allows you to slap other people, using both message commands and slash commands

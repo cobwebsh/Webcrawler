@@ -1,4 +1,4 @@
-package template.extensions
+package org.ecorous.webcrawler.extensions
 
 import com.kotlindiscord.kord.extensions.commands.Arguments
 import com.kotlindiscord.kord.extensions.commands.converters.impl.coalescingDefaultingString
@@ -10,7 +10,7 @@ import com.kotlindiscord.kord.extensions.extensions.publicSlashCommand
 import com.kotlindiscord.kord.extensions.types.respond
 import com.kotlindiscord.kord.extensions.utils.respond
 import dev.kord.common.annotation.KordPreview
-import template.TEST_SERVER_ID
+import org.ecorous.webcrawler.TEST_SERVER_ID
 
 @OptIn(KordPreview::class)
 class TestExtension : Extension() {
