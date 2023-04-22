@@ -10,6 +10,7 @@ import dev.kord.gateway.Intent
 import dev.kord.gateway.Intents
 import dev.kord.gateway.PrivilegedIntent
 import org.ecorous.webcrawler.extensions.TestExtension
+import org.ecorous.webcrawler.extensions.ModerationExtension
 
 val SERVER_ID = Snowflake(
     env("SERVER").toLong()  // Get the test server ID from the env vars or a .env file
@@ -47,6 +48,7 @@ suspend fun main() {
         }
         extensions {
             add(::TestExtension)
+            add(::ModerationExtension)
         }
     }
 
