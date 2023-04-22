@@ -143,7 +143,7 @@ class TestExtension : Extension() {
                                             val dmChannel = applicationMember!!.getDmChannel()
                                             dmChannel.createEmbed {
                                                 title = "You have been denied access to the server."
-                                                description = "If not, please send a messasge to Ecorous#9052 (<@"
+                                                description = "If not, please send a messasge to Ecorous#9052 (<@604653220341743618>)"
                                             }
                                             applicationMember.kick("Application denied by ${memberX.username}#${memberX.discriminator} (${memberX.id})")
                                             channel.createEmbed {
