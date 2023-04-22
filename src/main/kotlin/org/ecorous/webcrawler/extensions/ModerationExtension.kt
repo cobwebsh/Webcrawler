@@ -15,6 +15,12 @@ import dev.kord.rest.builder.message.create.embed
 import org.ecorous.webcrawler.SERVER_ID
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import com.kotlindiscord.kord.extensions.DISCORD_RED
+import com.kotlindiscord.kord.extensions.utils.selfMember
+import dev.kord.common.entity.Permission
+import kotlinx.datetime.Clock
+import java.time.ZoneOffset
+import java.time.temporal.TemporalAccessor
 
 @OptIn(KordPreview::class)
 class ModerationExtension : Extension() {
@@ -47,33 +53,29 @@ class ModerationExtension : Extension() {
             description = "Kick a user from the server"
 
             guild(SERVER_ID)  // Otherwise it'll take an hour to update
-
+            requirePermission(Permission.KickMembers)
+            requireBotPermissions(Permission.KickMembers)
             action {
                 // Because of the DslMarker annotation KordEx uses, we need to grab Kord explicitly
                 val kord = this@ModerationExtension.kord
 
                 val channel = arguments.target.getDmChannel()
                 channel.createEmbed {
-                    title = "Kick notification"
-                    description = "${arguments.target.mention}, you have been kicked from Cobweb!\nYou can re-join with a new invite link, but any further issues will be punished with a ban."
-                    field {
-                        name = "Time:"
-                        value = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
-                        inline = true
+                    title = "Kicked!"
+                    description = "${arguments.target.mention}, you have been kicked from `${guild?.fetchGuild()?.name}`\nYou can re-join with a new invite link, but any further issues will be punished with a ban."
+                    footer {
+                        text = "Moderator: ${user.asUser().tag} (${user.asUser().id})"
+                        icon = user.asUser().avatar?.url
                     }
+                    timestamp = Clock.System.now()
                     field {
-                        name = "Moderator:"
-                        value = user.asUser().tag
-                        inline = true
-                    }
-                    field {
-                        name = "Reason:"
+                        name = "Reason"
                         value = arguments.reason
-                        inline = true
+                        inline = false
                     }
+                    color = DISCORD_RED
                 }
-
-                kord.getGuildOrThrow(SERVER_ID).kick(arguments.target.id, arguments.reason)
+                guild?.fetchGuild()?.kick(arguments.target.id, arguments.reason)
                 
                 respond {
                     content = "Kicked ${arguments.target.mention}!"
@@ -85,12 +87,12 @@ class ModerationExtension : Extension() {
     inner class KickArgs : Arguments() {
         val target by user {
             name = "user"
-            description = "Person to kick"
+            description = "Member to kick"
         }
 
         val reason by string {
             name = "reason"
-            description = "Why are you kicking them"
+            description = "The reason to kick this member"
         }
     }
 }
