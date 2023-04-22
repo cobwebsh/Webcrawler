@@ -6,31 +6,45 @@ package org.ecorous.webcrawler
 import com.kotlindiscord.kord.extensions.ExtensibleBot
 import com.kotlindiscord.kord.extensions.utils.env
 import dev.kord.common.entity.Snowflake
-import org.ecorous.template.extensions.TestExtension
+import dev.kord.gateway.Intent
+import dev.kord.gateway.Intents
+import dev.kord.gateway.PrivilegedIntent
+import org.ecorous.webcrawler.extensions.TestExtension
 
-val TEST_SERVER_ID = Snowflake(
-    env("TEST_SERVER").toLong()  // Get the test server ID from the env vars or a .env file
+val SERVER_ID = Snowflake(
+    env("SERVER").toLong()  // Get the test server ID from the env vars or a .env file
+)
+val APPLICATIONS_WEBHOOK_ID = Snowflake(
+    env("APPLICATIONS_WEBHOOK").toLong()
+)
+val APPLICATIONS_CHANNEL_ID = Snowflake(
+    env("APPLICATIONS_CHANNEL").toLong()
+)
+val VERIFIED_ROLE_ID = Snowflake(
+    env("VERIFIED_ROLE").toLong()
+)
+val ACCESS_CHANNEL_ID = Snowflake(
+    env("ACCESS_CHANNEL").toLong()
+)
+val MODERATOR_ROLE_ID = Snowflake(
+    env("MODERATOR_ROLE").toLong()
+)
+val ADMIN_ROLE_ID = Snowflake(
+    env("ADMIN_ROLE").toLong()
 )
 
 private val TOKEN = env("TOKEN")   // Get the bot' token from the env vars or a .env file
 
+
+@OptIn(PrivilegedIntent::class)
 suspend fun main() {
     val bot = ExtensibleBot(TOKEN) {
-        chatCommands {
-            defaultPrefix = "?"
-            enabled = true
-
-            prefix { default ->
-                if (guildId == TEST_SERVER_ID) {
-                    // For the test server, we use ! as the command prefix
-                    "!"
-                } else {
-                    // For other servers, we use the configured default prefix
-                    default
-                }
-            }
+        intents {
+            +Intent.GuildMembers
         }
-
+        members {
+            guildsToFill?.add(SERVER_ID)
+        }
         extensions {
             add(::TestExtension)
         }
