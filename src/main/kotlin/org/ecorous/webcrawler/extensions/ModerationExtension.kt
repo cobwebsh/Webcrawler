@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter
 import com.kotlindiscord.kord.extensions.DISCORD_RED
 import com.kotlindiscord.kord.extensions.utils.selfMember
 import dev.kord.common.entity.Permission
+import dev.kord.core.behavior.ban
 import kotlinx.datetime.Clock
 import java.time.ZoneOffset
 import java.time.temporal.TemporalAccessor
@@ -27,27 +28,6 @@ class ModerationExtension : Extension() {
     override val name = ""
 
     override suspend fun setup() {
-        chatCommand(::KickArgs) {
-            name = "kick"
-            description = "Kick a user from the server"
-
-            check {
-                failIf(event.message.author == null)
-            }
-
-            action {
-                // Because of the DslMarker annotation KordEx uses, we need to grab Kord explicitly
-                val kord = this@ModerationExtension.kord
-
-                if(arguments.reason.isEmpty()) {
-                    message.respond("You must supply a kick reason!")
-                } else {
-                    kord.getGuildOrThrow(SERVER_ID).kick(arguments.target.id, arguments.reason)
-                    message.respond("Kicked ${arguments.target.mention}")
-                }
-            }
-        }
-
         publicSlashCommand(::KickArgs) {
             name = "kick"
             description = "Kick a user from the server"
@@ -56,9 +36,6 @@ class ModerationExtension : Extension() {
             requirePermission(Permission.KickMembers)
             requireBotPermissions(Permission.KickMembers)
             action {
-                // Because of the DslMarker annotation KordEx uses, we need to grab Kord explicitly
-                val kord = this@ModerationExtension.kord
-
                 val channel = arguments.target.getDmChannel()
                 channel.createEmbed {
                     title = "Kicked!"
@@ -82,6 +59,40 @@ class ModerationExtension : Extension() {
                 }
             }
         }
+
+        publicSlashCommand (::BanArgs) {
+            name = "ban"
+            description = "Ban a user from the server"
+
+            guild(SERVER_ID)
+            requirePermission(Permission.BanMembers)
+            requireBotPermissions(Permission.BanMembers)
+            action {
+                val channel = arguments.target.getDmChannel()
+                channel.createEmbed {
+                    title = "Banned!"
+                    description = "${arguments.target.mention}, you have been banned from `${guild?.fetchGuild()?.name}`!\nTo appeal, message `Ecorous#9052` (<@604653220341743618>)."
+                    footer {
+                        text = "Moderator: ${user.asUser().tag} (${user.asUser().id})"
+                        icon = user.asUser().avatar?.url
+                    }
+                    timestamp = Clock.System.now()
+                    field {
+                        name = "Reason"
+                        value = arguments.reason
+                        inline = false
+                    }
+                    color = DISCORD_RED
+                }
+                guild?.fetchGuild()?.ban (arguments.target.id) {
+                    reason = arguments.reason
+                }
+
+                respond {
+                    content = "Banned ${arguments.target.mention} (${arguments.target.id})!"
+                }
+            }
+        }
     }
 
     inner class KickArgs : Arguments() {
@@ -93,6 +104,17 @@ class ModerationExtension : Extension() {
         val reason by string {
             name = "reason"
             description = "The reason to kick this member"
+        }
+    }
+    inner class BanArgs : Arguments() {
+        val target by user {
+            name = "user"
+            description = "Member to ban"
+        }
+
+        val reason by string {
+            name = "reason"
+            description = "The reason to ban this member"
         }
     }
 }
