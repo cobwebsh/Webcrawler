@@ -19,7 +19,10 @@ import com.kotlindiscord.kord.extensions.DISCORD_RED
 import com.kotlindiscord.kord.extensions.utils.selfMember
 import dev.kord.common.entity.Permission
 import dev.kord.core.behavior.ban
+import dev.kord.rest.builder.message.EmbedBuilder
 import kotlinx.datetime.Clock
+import org.ecorous.webcrawler.ModerationLogType
+import org.ecorous.webcrawler.Utils
 import java.time.ZoneOffset
 import java.time.temporal.TemporalAccessor
 
@@ -52,8 +55,8 @@ class ModerationExtension : Extension() {
                     }
                     color = DISCORD_RED
                 }
-                guild?.fetchGuild()?.kick(arguments.target.id, arguments.reason)
-                
+                guild!!.fetchGuild().kick(arguments.target.id, arguments.reason)
+                Utils.sendModLog(guild!!.fetchGuild(), user.fetchMember(guild!!.id), arguments.target, ModerationLogType.KICK, arguments.reason, Clock.System.now())
                 respond {
                     content = "Kicked ${arguments.target.mention}!"
                 }
@@ -87,6 +90,7 @@ class ModerationExtension : Extension() {
                 guild?.fetchGuild()?.ban (arguments.target.id) {
                     reason = arguments.reason
                 }
+                Utils.sendModLog(guild!!.fetchGuild(), user.fetchMember(guild!!.id), arguments.target, ModerationLogType.BAN, arguments.reason, Clock.System.now())
 
                 respond {
                     content = "Banned ${arguments.target.mention} (${arguments.target.id})!"

@@ -7,9 +7,8 @@ import com.kotlindiscord.kord.extensions.ExtensibleBot
 import com.kotlindiscord.kord.extensions.utils.env
 import dev.kord.common.entity.Snowflake
 import dev.kord.gateway.Intent
-import dev.kord.gateway.Intents
 import dev.kord.gateway.PrivilegedIntent
-import org.ecorous.webcrawler.extensions.TestExtension
+import org.ecorous.webcrawler.extensions.MembershipScreeningExtension
 import org.ecorous.webcrawler.extensions.ModerationExtension
 
 val SERVER_ID = Snowflake(
@@ -33,6 +32,12 @@ val MODERATOR_ROLE_ID = Snowflake(
 val ADMIN_ROLE_ID = Snowflake(
     env("ADMIN_ROLE").toLong()
 )
+val MODERATION_LOG_CHANNEL_ID = Snowflake(
+    env("MODERATION_LOG_CHANNEL").toLong()
+)
+val MESSAGE_LOG_CHANNEL_ID = Snowflake(
+    env("MESSAGE_LOG_CHANNEL").toLong()
+)
 
 private val TOKEN = env("TOKEN")   // Get the bot' token from the env vars or a .env file
 
@@ -47,7 +52,7 @@ suspend fun main() {
             guildsToFill?.add(SERVER_ID)
         }
         extensions {
-            add(::TestExtension)
+            add(::MembershipScreeningExtension)
             add(::ModerationExtension)
         }
     }
