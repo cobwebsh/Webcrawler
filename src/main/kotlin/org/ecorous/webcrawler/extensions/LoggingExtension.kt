@@ -14,6 +14,9 @@ class LoggingExtension: Extension() {
     override suspend fun setup() {
         event<MessageUpdateEvent> {
             action {
+                val newContent = event.getMessage().content
+                val oldContent = event.old!!.content
+                if (oldContent == newContent) return@action
                 val message = event.getMessage()
                 val guild = message.getGuild()
                 Utils.sendMsgLog(guild, message.author!!.fetchMember(event.getMessage().getGuild().id), event.getMessage(), MessageLogType.EDIT, Clock.System.now(), event.old!!.content)

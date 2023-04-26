@@ -8,8 +8,7 @@ import com.kotlindiscord.kord.extensions.utils.env
 import dev.kord.common.entity.Snowflake
 import dev.kord.gateway.Intent
 import dev.kord.gateway.PrivilegedIntent
-import org.ecorous.webcrawler.extensions.MembershipScreeningExtension
-import org.ecorous.webcrawler.extensions.ModerationExtension
+import org.ecorous.webcrawler.extensions.*
 
 val SERVER_ID = Snowflake(
     env("SERVER").toLong()  // Get the test server ID from the env vars or a .env file
@@ -54,6 +53,7 @@ suspend fun main() {
         extensions {
             add(::MembershipScreeningExtension)
             add(::ModerationExtension)
+            add(::LoggingExtension)
         }
     }
 

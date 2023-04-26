@@ -24,8 +24,7 @@ enum class ModerationLogType {
 
 enum class MessageLogType {
     EDIT,
-    DELETE,
-    PIN
+    DELETE
 }
 
 object Utils : CoroutineScope {
@@ -69,11 +68,10 @@ object Utils : CoroutineScope {
 
     fun sendMsgLog(guild: Guild, member: Member, message: Message, type: MessageLogType, time: Instant, oldText: String?) {
         launch {
-            val channel = guild.getChannelOf<TextChannel>(MODERATION_LOG_CHANNEL_ID)
+            val channel = guild.getChannelOf<TextChannel>(MESSAGE_LOG_CHANNEL_ID)
             channel.createEmbed {
                 title = "Message " + when(type) {
                     MessageLogType.EDIT -> "edited"
-                    MessageLogType.PIN -> "pinned"
                     MessageLogType.DELETE -> "deleted"
                 }
                 field {
@@ -110,7 +108,6 @@ object Utils : CoroutineScope {
                 color = when(type) {
                     MessageLogType.EDIT -> DISCORD_YELLOW
                     MessageLogType.DELETE -> DISCORD_RED
-                    MessageLogType.PIN -> DISCORD_BLURPLE
                 }
                 footer {
                     icon = member.avatar?.url
