@@ -19,7 +19,7 @@ class LoggingExtension: Extension() {
                 if (oldContent == newContent) return@action
                 val message = event.getMessage()
                 val guild = message.getGuild()
-                Utils.sendMsgLog(guild, message.author!!.fetchMember(event.getMessage().getGuild().id), event.getMessage(), MessageLogType.EDIT, Clock.System.now(), event.old!!.content)
+                //Utils.sendMsgLog(guild, message.author!!.fetchMember(event.getMessage().getGuild().id), event.getMessage(), MessageLogType.EDIT, Clock.System.now(), event.old!!.content)
             }
         }
     }

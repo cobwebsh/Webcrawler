@@ -110,6 +110,19 @@ class ModerationExtension : Extension() {
             description = "The reason to kick this member"
         }
     }
+
+    inner class KickArgsaa : Arguments() {
+        val target by user {
+            name = "user"
+            description = "Member to kick"
+        }
+
+        val reason by string {
+            name = "reason"
+            description = "The reason to kick this member"
+        }
+    }
+
     inner class BanArgs : Arguments() {
         val target by user {
             name = "user"
