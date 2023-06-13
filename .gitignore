@@ -110,3 +110,6 @@ build/
 
 # Env vars - don't commit this!
 .env
+
+# Database files
+webcrawler.db

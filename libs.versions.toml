@@ -9,6 +9,10 @@ kx-ser = "1.3.3"
 logging = "2.1.23"
 logback = "1.2.5"
 
+exposed-core = "0.41.1"
+exposed-jdbc = "0.41.1"
+sqlite-jdbc = "3.41.2.1"
+
 [libraries]
 detekt = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 groovy = { module = "org.codehaus.groovy:groovy", version.ref = "groovy" }
@@ -18,3 +22,7 @@ kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 logging = { module = "io.github.microutils:kotlin-logging", version.ref = "logging" }
 kx-ser = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kx-ser" }
+
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed-core" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed-jdbc" }
+sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite-jdbc" }

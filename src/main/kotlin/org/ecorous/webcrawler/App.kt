@@ -8,6 +8,7 @@ import com.kotlindiscord.kord.extensions.utils.env
 import dev.kord.common.entity.Snowflake
 import dev.kord.gateway.Intent
 import dev.kord.gateway.PrivilegedIntent
+import org.ecorous.webcrawler.database.DB
 import org.ecorous.webcrawler.extensions.*
 
 val SERVER_ID = Snowflake(
@@ -43,6 +44,7 @@ private val TOKEN = env("TOKEN")   // Get the bot' token from the env vars or a 
 
 @OptIn(PrivilegedIntent::class)
 suspend fun main() {
+    DB.setup()
     val bot = ExtensibleBot(TOKEN) {
         intents {
             +Intent.GuildMembers
@@ -54,6 +56,7 @@ suspend fun main() {
             add(::MembershipScreeningExtension)
             add(::ModerationExtension)
             add(::LoggingExtension)
+            add(::ConfigExtension)
         }
     }
 

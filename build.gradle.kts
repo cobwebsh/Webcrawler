@@ -37,6 +37,11 @@ dependencies {
     implementation(libs.jansi)
     implementation(libs.logback)
     implementation(libs.logging)
+
+    // Exposed (database) dependencies
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.sqlite.jdbc)
 }
 
 application {
