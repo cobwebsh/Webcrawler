@@ -20,17 +20,8 @@ val APPLICATIONS_WEBHOOK_ID = Snowflake(
 val APPLICATIONS_CHANNEL_ID = Snowflake(
     env("APPLICATIONS_CHANNEL").toLong()
 )
-val VERIFIED_ROLE_ID = Snowflake(
-    env("VERIFIED_ROLE").toLong()
-)
 val ACCESS_CHANNEL_ID = Snowflake(
     env("ACCESS_CHANNEL").toLong()
-)
-val MODERATOR_ROLE_ID = Snowflake(
-    env("MODERATOR_ROLE").toLong()
-)
-val ADMIN_ROLE_ID = Snowflake(
-    env("ADMIN_ROLE").toLong()
 )
 val MODERATION_LOG_CHANNEL_ID = Snowflake(
     env("MODERATION_LOG_CHANNEL").toLong()

@@ -25,6 +25,7 @@ import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.rest.builder.message.create.embed
 import kotlinx.coroutines.flow.firstOrNull
 import org.ecorous.webcrawler.*
+import org.ecorous.webcrawler.database.DB
 
 class MembershipScreeningExtension : Extension() {
 	override val name = "test"
@@ -67,7 +68,7 @@ class MembershipScreeningExtension : Extension() {
                                                 content = "You do not have permission to perform this action"
                                                 return@action
                                             }
-                                            applicationMember?.addRole(VERIFIED_ROLE_ID, "Application accepted by ${memberX.username}#${memberX.discriminator} (${memberX.id})")
+                                            applicationMember?.addRole(DB.getConfigSnowflake("role.verified"), "Application accepted by ${memberX.username}#${memberX.discriminator} (${memberX.id})")
                                             channel.createEmbed {
                                                 author {
                                                     name = memberX.username + "#" + memberX.discriminator
@@ -117,8 +118,8 @@ class MembershipScreeningExtension : Extension() {
                                                 autoArchiveDuration = ArchiveDuration.Day
                                             }
                                             applicationThread = thread
-                                            val modRole = guild.getRole(MODERATOR_ROLE_ID)
-                                            val adminRole = guild.getRole(ADMIN_ROLE_ID)
+                                            val modRole = guild.getRole(DB.getConfigSnowflake("role.moderator"))
+                                            val adminRole = guild.getRole(DB.getConfigSnowflake("role.admin"))
 
                                             val threadMessage = thread.createMessage("${applicationMember?.mention} Let me get all the moderators in here...")
                                             threadMessage.edit {

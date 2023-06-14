@@ -35,13 +35,17 @@ class ConfigExtension: Extension() {
 
                 action {
                     arguments.verified?.let {
-                        DB.setConfig("role.verified",it.id.value.toLong())
+                        DB.setConfig("role.verified",it.id.value.toString())
                     }
                     arguments.moderator?.let {
-                        DB.setConfig("role.moderator", it.id.value.toLong())
+                        DB.setConfig("role.moderator", it.id.value.toString())
                     }
                     arguments.admin?.let {
-                        DB.setConfig("role.admin", it.id.value.toLong())
+                        DB.setConfig("role.admin", it.id.value.toString())
+                    }
+
+                    respond {
+                        content = "Updated roles config."
                     }
                 }
             }
@@ -78,11 +82,6 @@ class ConfigExtension: Extension() {
         val msgLogs by optionalChannel {
             name = "message_logs"
             description = "The channel where message logs get sent"
-        }
-    }
-    inner class TestArgs: Arguments() {
-        val thing by string {
-            name = "thing"
         }
     }
     inner class KickArgs : Arguments() {

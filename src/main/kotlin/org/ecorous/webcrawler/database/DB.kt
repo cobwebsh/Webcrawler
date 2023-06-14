@@ -1,5 +1,6 @@
 package org.ecorous.webcrawler.database
 
+import dev.kord.common.entity.Snowflake
 import kotlinx.coroutines.selects.select
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -25,29 +26,24 @@ object DB {
             }
         }
     }
-    fun setConfig(name: String, value: Long) {
-        transaction (database) {
-            Config.deleteWhere {
-                settingName eq name
-            }
-            Config.insert {
-                it[settingName] = name
-                it[longValue] = value
-            }
-        }
-    }
-    fun getConfig(name: String, default: String): String {
+    fun getConfigString(name: String): String {
         val q = Config.select { Config.settingName eq name }
         if(!q.any()) {
-            return default
+            return ""
         }
         return q.first()[Config.stringValue]
     }
-    fun getConfig(name: String, default: Long): Long {
-        val q = Config.select { Config.settingName eq name }
-        if(!q.any()) {
-            return default
+    fun getConfigLong(name: String): Long {
+        return transaction {
+            val q = Config.select { Config.settingName eq name }
+            if(!q.any()) {
+                return@transaction 0
+            }
+            return@transaction q.first()[Config.stringValue].toLong()
         }
-        return q.first()[Config.longValue]
+    }
+
+    fun getConfigSnowflake(name: String): Snowflake {
+        return Snowflake(getConfigLong(name))
     }
 }

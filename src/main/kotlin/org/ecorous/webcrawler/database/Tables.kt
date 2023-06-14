@@ -5,7 +5,6 @@ import org.jetbrains.exposed.sql.Table
 object Config : Table() {
     val settingName = varchar("settingName", 100)
     val stringValue = varchar("stringValue", 100)
-    val longValue = long("longValue")
 }
 
 object ModerationCase : Table() {
