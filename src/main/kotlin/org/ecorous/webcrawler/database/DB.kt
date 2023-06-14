@@ -1,13 +1,14 @@
 package org.ecorous.webcrawler.database
 
 import dev.kord.common.entity.Snowflake
-import kotlinx.coroutines.selects.select
+import org.ecorous.webcrawler.Case
+import org.ecorous.webcrawler.Utils.toCase
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object DB {
-    private lateinit var database: Database;
+    lateinit var database: Database;
     fun setup() {
         database = Database.connect("jdbc:sqlite:webcrawler.db")
 
@@ -45,5 +46,15 @@ object DB {
 
     fun getConfigSnowflake(name: String): Snowflake {
         return Snowflake(getConfigLong(name))
+    }
+
+    fun ResultRow.caseFromRow(): Case {
+        return Case(
+            id = this[ModerationCase.id].value,
+            type = this[ModerationCase.caseType].toCase(),
+            userId = Snowflake(this[ModerationCase.userId]),
+            moderatorId = Snowflake(this[ModerationCase.moderatorId]),
+            content = this[ModerationCase.content]
+        )
     }
 }

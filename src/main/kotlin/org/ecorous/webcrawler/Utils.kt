@@ -15,43 +15,30 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlin.coroutines.CoroutineContext
 
-enum class ModerationLogType {
-    BAN,
-    KICK,
-    MUTE,
-    NOTE,
-}
 
-enum class MessageLogType {
-    EDIT,
-    DELETE
-}
 
 object Utils : CoroutineScope {
-    fun getNextCaseNumber(): Int {
-        return -9999
-    }
-    fun sendModLog(guild: Guild, moderator: Member, user: User, type: ModerationLogType, reason: String?, time: Instant) {
+    fun sendModLog(guild: Guild, moderator: Member, user: User, type: CaseType, reason: String?, time: Instant) {
         launch {
             val channel = guild.getChannelOf<TextChannel>(MODERATION_LOG_CHANNEL_ID)
             channel.createEmbed {
                 title = when(type) {
-                    ModerationLogType.BAN -> "Banned"
-                    ModerationLogType.MUTE -> "Muted"
-                    ModerationLogType.KICK -> "Kicked"
-                    ModerationLogType.NOTE -> "Note"
+                    CaseType.BAN -> "Banned"
+                    CaseType.MUTE -> "Muted"
+                    CaseType.KICK -> "Kicked"
+                    CaseType.NOTE -> "Note"
                 } + " - Case <case number>"
                 description = when(type) {
-                    ModerationLogType.BAN -> "Member banned"
-                    ModerationLogType.MUTE -> "Member muted"
-                    ModerationLogType.KICK -> "Member kicked"
-                    ModerationLogType.NOTE -> "Note created"
+                    CaseType.BAN -> "Member banned"
+                    CaseType.MUTE -> "Member muted"
+                    CaseType.KICK -> "Member kicked"
+                    CaseType.NOTE -> "Note created"
                 } + if(reason != null) ": $reason" else ""
                 color = when(type) {
-                    ModerationLogType.BAN -> DISCORD_RED
-                    ModerationLogType.KICK -> DISCORD_YELLOW
-                    ModerationLogType.MUTE -> DISCORD_BLURPLE
-                    ModerationLogType.NOTE -> DISCORD_WHITE
+                    CaseType.BAN -> DISCORD_RED
+                    CaseType.KICK -> DISCORD_YELLOW
+                    CaseType.MUTE -> DISCORD_BLURPLE
+                    CaseType.NOTE -> DISCORD_WHITE
                 }
                 author {
                     icon = user.avatar?.url
@@ -115,6 +102,16 @@ object Utils : CoroutineScope {
                 }
                 timestamp = time
             }
+        }
+    }
+
+    fun String.toCase(): CaseType {
+        return when(this.lowercase()) {
+            "ban" -> CaseType.BAN
+            "kick" -> CaseType.KICK
+            "mute" -> CaseType.MUTE
+            "note" -> CaseType.NOTE
+            else -> throw IllegalStateException("invalid toCase() input")
         }
     }
 

@@ -13,7 +13,6 @@ import com.kotlindiscord.kord.extensions.types.respond
 import dev.kord.common.entity.Permission
 import dev.kord.core.behavior.channel.createEmbed
 import kotlinx.datetime.Clock
-import org.ecorous.webcrawler.ModerationLogType
 import org.ecorous.webcrawler.SERVER_ID
 import org.ecorous.webcrawler.Utils
 import org.ecorous.webcrawler.database.DB
