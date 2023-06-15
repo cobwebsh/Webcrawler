@@ -2,6 +2,7 @@ package org.ecorous.webcrawler.database
 
 import dev.kord.common.entity.Snowflake
 import org.ecorous.webcrawler.Case
+import org.ecorous.webcrawler.Tag
 import org.ecorous.webcrawler.Utils.toCase
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -13,7 +14,7 @@ object DB {
         database = Database.connect("jdbc:sqlite:webcrawler.db")
 
         transaction (database) {
-            SchemaUtils.create(Config, ModerationCase)
+            SchemaUtils.create(Config, ModerationCase, TagsTable)
         }
     }
     fun setConfig(name: String, value: String) {
@@ -55,6 +56,13 @@ object DB {
             userId = Snowflake(this[ModerationCase.userId]),
             moderatorId = Snowflake(this[ModerationCase.moderatorId]),
             content = this[ModerationCase.content]
+        )
+    }
+
+    fun ResultRow.tagFromRow(): Tag {
+        return Tag(
+            name = this[TagsTable.tag],
+            content = this[TagsTable.content]
         )
     }
 }

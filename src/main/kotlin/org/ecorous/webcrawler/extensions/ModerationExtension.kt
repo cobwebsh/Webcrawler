@@ -26,6 +26,7 @@ import org.ecorous.webcrawler.CaseType
 import org.ecorous.webcrawler.Cases
 import org.ecorous.webcrawler.Cases.toColor
 import org.ecorous.webcrawler.Utils
+import org.ecorous.webcrawler.Utils.getUsername
 import java.time.ZoneOffset
 import java.time.temporal.TemporalAccessor
 
@@ -59,8 +60,7 @@ class ModerationExtension : Extension() {
                     color = DISCORD_RED
                 }
                 guild!!.fetchGuild().kick(arguments.target.id, arguments.reason)
-                Utils.sendModLog(guild!!.fetchGuild(), user.fetchMember(guild!!.id), arguments.target, CaseType.KICK, arguments.reason, Clock.System.now())
-                Cases.reportCase(CaseType.KICK, arguments.target.id, user.id, arguments.reason)
+                Utils.sendModLog(guild!!.fetchGuild(), user.fetchMember(guild!!.id), arguments.target, CaseType.KICK, arguments.reason, Clock.System.now(), Cases.reportCase(CaseType.KICK, arguments.target.id, user.id, arguments.reason))
                 respond {
                     content = "Kicked ${arguments.target.mention}!"
                 }
@@ -78,7 +78,7 @@ class ModerationExtension : Extension() {
                 val channel = arguments.target.getDmChannel()
                 channel.createEmbed {
                     title = "Banned!"
-                    description = "${arguments.target.mention}, you have been banned from `${guild?.fetchGuild()?.name}`!\nTo appeal, message `Ecorous#9052` (<@604653220341743618>)."
+                    description = "${arguments.target.mention}, you have been banned from `${guild?.fetchGuild()?.name}`!\nTo appeal, message `ecorous` (<@604653220341743618>)."
                     footer {
                         text = "Moderator: ${user.asUser().tag} (${user.asUser().id})"
                         icon = user.asUser().avatar?.url
@@ -94,8 +94,7 @@ class ModerationExtension : Extension() {
                 guild?.fetchGuild()?.ban (arguments.target.id) {
                     reason = arguments.reason
                 }
-                Utils.sendModLog(guild!!.fetchGuild(), user.fetchMember(guild!!.id), arguments.target, CaseType.BAN, arguments.reason, Clock.System.now())
-                Cases.reportCase(CaseType.BAN, arguments.target.id, user.id, arguments.reason)
+                Utils.sendModLog(guild!!.fetchGuild(), user.fetchMember(guild!!.id), arguments.target, CaseType.BAN, arguments.reason, Clock.System.now(), Cases.reportCase(CaseType.BAN, arguments.target.id, user.id, arguments.reason))
                 respond {
                     content = "Banned ${arguments.target.mention} (${arguments.target.id})!"
                 }
@@ -107,8 +106,7 @@ class ModerationExtension : Extension() {
             description = "Add a moderation note to a user"
             requirePermission(Permission.ModerateMembers)
             action {
-                Utils.sendModLog(guild!!.fetchGuild(), user.fetchMember(guild!!.id), arguments.user, CaseType.NOTE, arguments.content, Clock.System.now())
-                Cases.reportCase(CaseType.NOTE, arguments.user.id, user.id, arguments.content)
+                Utils.sendModLog(guild!!.fetchGuild(), user.fetchMember(guild!!.id), arguments.user, CaseType.NOTE, arguments.content, Clock.System.now(), Cases.reportCase(CaseType.NOTE, arguments.user.id, user.id, arguments.content))
                 respond {
                     content = "Added note to ${arguments.user.mention} (${arguments.user.id})"
                 }
@@ -121,6 +119,8 @@ class ModerationExtension : Extension() {
             requirePermission(Permission.ModerateMembers)
             action {
                 val case = Cases.getCase(arguments.number)
+                val caseUser = this.guild!!.kord.getUser(case.userId)!!
+                val caseModerator = this.guild!!.kord.getUser(case.moderatorId)!!
                 respond {
                     embed {
                         title = "Case #${case.id}"
@@ -135,6 +135,14 @@ class ModerationExtension : Extension() {
                                 else -> "Reason"
                             }
                             value = case.content
+                        }
+                        field {
+                            name = "User"
+                            value = "${caseUser.getUsername()} (${caseUser.mention} - ${caseUser.id}"
+                        }
+                        footer {
+                            icon = caseModerator.avatar?.url
+                            text = "${caseModerator.getUsername()} (${caseModerator.id})"
                         }
                     }
                 }

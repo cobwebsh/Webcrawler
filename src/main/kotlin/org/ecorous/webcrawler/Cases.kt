@@ -27,7 +27,7 @@ object Cases {
         getCase(new.toInt())
     }
 
-    fun getLatestCase(): Case {
+    fun getLatestCase(): Case? {
         val cases = transaction(database) {
             ModerationCase.selectAll()
         }
@@ -38,12 +38,12 @@ object Cases {
                 lastCase = case.id
             }
         }}
-        return transaction(database) {
+        return transaction(database) { if (cases.empty()) null else
             ModerationCase.select(ModerationCase.id eq lastCase).single().caseFromRow()
         }
     }
     fun getLatestCaseNum(): Int {
-        return getLatestCase().id
+        return if (getLatestCase() == null) 0 else getLatestCase()!!.id
     }
 
     fun getNextCaseNum(): Int {
@@ -64,13 +64,13 @@ object Cases {
         if (content.length > 512) {
             throw IllegalStateException("content too long, must not be over 512 chars (${content.length})")
         }
-        ModerationCase.insert {
+        transaction(database) {ModerationCase.insert {
             it[this.id] = caseNum
             it[this.caseType] = type.name
             it[this.userId] = userId.value.toLong()
             it[this.moderatorId] = moderatorId.value.toLong()
             it[this.content] = content
-        }
+        }}
         return Case(
             caseNum,
             type,

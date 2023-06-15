@@ -18,7 +18,7 @@ import kotlin.coroutines.CoroutineContext
 
 
 object Utils : CoroutineScope {
-    fun sendModLog(guild: Guild, moderator: Member, user: User, type: CaseType, reason: String?, time: Instant) {
+    fun sendModLog(guild: Guild, moderator: Member, user: User, type: CaseType, reason: String?, time: Instant, case: Case) {
         launch {
             val channel = guild.getChannelOf<TextChannel>(MODERATION_LOG_CHANNEL_ID)
             channel.createEmbed {
@@ -27,7 +27,7 @@ object Utils : CoroutineScope {
                     CaseType.MUTE -> "Muted"
                     CaseType.KICK -> "Kicked"
                     CaseType.NOTE -> "Note"
-                } + " - Case <case number>"
+                } + " - Case ${case.id}"
                 description = when(type) {
                     CaseType.BAN -> "Member banned"
                     CaseType.MUTE -> "Member muted"
@@ -113,6 +113,10 @@ object Utils : CoroutineScope {
             "note" -> CaseType.NOTE
             else -> throw IllegalStateException("invalid toCase() input")
         }
+    }
+
+    fun User.getUsername(): String {
+        return if (this.discriminator == "0") this.username else this.tag
     }
 
     override val coroutineContext = Dispatchers.Default

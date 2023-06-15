@@ -10,6 +10,11 @@ data class Case(
     val content: String
 )
 
+data class Tag(
+    val name: String,
+    val content: String
+)
+
 enum class CaseType {
     BAN,
     KICK,

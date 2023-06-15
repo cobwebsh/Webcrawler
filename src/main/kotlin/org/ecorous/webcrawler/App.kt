@@ -48,6 +48,7 @@ suspend fun main() {
             add(::ModerationExtension)
             add(::LoggingExtension)
             add(::ConfigExtension)
+            add(::TagExtension)
         }
     }
 

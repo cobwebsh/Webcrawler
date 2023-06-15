@@ -3,6 +3,7 @@ package org.ecorous.webcrawler.extensions
 import com.kotlindiscord.kord.extensions.extensions.Extension
 import com.kotlindiscord.kord.extensions.extensions.event
 import dev.kord.core.event.guild.BanAddEvent
+import dev.kord.core.event.guild.MemberJoinEvent
 import dev.kord.core.event.message.MessageDeleteEvent
 import dev.kord.core.event.message.MessageUpdateEvent
 import kotlinx.datetime.Clock
@@ -20,6 +21,11 @@ class LoggingExtension: Extension() {
                 val message = event.getMessage()
                 val guild = message.getGuild()
                 //Utils.sendMsgLog(guild, message.author!!.fetchMember(event.getMessage().getGuild().id), event.getMessage(), MessageLogType.EDIT, Clock.System.now(), event.old!!.content)
+            }
+        }
+        event<MemberJoinEvent> {
+            action {
+                // set up member logging soon™
             }
         }
     }

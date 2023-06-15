@@ -14,3 +14,8 @@ object ModerationCase : IntIdTable() {
     val moderatorId = long("moderatorId")
     val content = varchar("content", 512)
 }
+
+object TagsTable : Table() {
+    val tag = varchar("tag", 64)
+    val content = varchar("content", 1024)
+}
