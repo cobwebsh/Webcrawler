@@ -5,15 +5,18 @@ import com.kotlindiscord.kord.extensions.DISCORD_RED
 import com.kotlindiscord.kord.extensions.DISCORD_YELLOW
 import dev.kord.common.Color
 import dev.kord.common.entity.Snowflake
+import dev.kord.core.Kord
+import dev.kord.core.entity.Member
 import org.ecorous.webcrawler.database.DB.caseFromRow
 import org.ecorous.webcrawler.database.DB.database
 import org.ecorous.webcrawler.database.ModerationCase
-import org.ecorous.webcrawler.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import kotlinx.datetime.Clock
 
 object Cases {
     fun getCase(number: Number): Case {
@@ -78,7 +81,28 @@ object Cases {
             moderatorId,
             content
         )
+    }
 
+    fun Case.delete() {
+        transaction(database) {
+            ModerationCase.deleteWhere {
+                id eq this@delete.id
+            }
+        }
+    }
 
+    suspend fun Case.updateContent(newContent: String, member: Member) {
+        this.delete()
+        transaction(database) {
+            ModerationCase.insert {
+                it[ModerationCase.id] = this@updateContent.id
+                it[content] = newContent
+                it[caseType] = this@updateContent.type.toString()
+                it[moderatorId] = this@updateContent.moderatorId.value.toLong()
+                it[userId] = this@updateContent.userId.value.toLong()
+            }
+        }
+        val guild = bot.kordRef.getGuildOrThrow(SERVER_ID)
+        Utils.sendCaseUpdateLog(guild, this.id, this.content, newContent, member, Clock.System.now())
     }
 }

@@ -13,6 +13,7 @@ import dev.kord.common.entity.optional.Optional
 import dev.kord.core.behavior.interaction.suggest
 import dev.kord.rest.builder.message.create.*
 import org.ecorous.webcrawler.Tags
+import org.ecorous.webcrawler.Tags.delete
 
 class TagExtension : Extension() {
     override val name: String = "tags"
@@ -50,7 +51,7 @@ class TagExtension : Extension() {
                 name = "delete"
                 description = "Delete a tag"
                 action {
-                    Tags.deleteTag(arguments.name)
+                    Tags.getTagByName(arguments.name).delete()
                     respond {
                         content = "Deleted ${arguments.name}"
                     }
@@ -123,4 +124,5 @@ class TagExtension : Extension() {
             description = "The new content of the tag"
         }
     }
+
 }

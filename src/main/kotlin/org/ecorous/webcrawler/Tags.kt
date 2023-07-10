@@ -43,16 +43,16 @@ object Tags {
         return tag
     }
 
-    fun deleteTag(name: String) {
+    fun Tag.delete() {
         transaction(DB.database) {
             TagsTable.deleteWhere {
-                TagsTable.tag eq name
+                TagsTable.tag eq this@delete.name
             }
         }
     }
 
     fun modifyTag(name: String, content: String) {
-        deleteTag(name)
+        getTagByName(name).delete()
         transaction(DB.database) {
             TagsTable.insert {
                 it[this.tag] = name

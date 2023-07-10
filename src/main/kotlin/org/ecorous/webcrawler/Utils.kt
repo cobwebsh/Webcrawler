@@ -8,11 +8,13 @@ import com.kotlindiscord.kord.extensions.utils.getJumpUrl
 import dev.kord.core.behavior.*
 import dev.kord.core.behavior.channel.*
 import dev.kord.core.entity.*
+import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.channel.TextChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
+import org.ecorous.webcrawler.Cases.toColor
 import kotlin.coroutines.CoroutineContext
 
 
@@ -100,6 +102,29 @@ object Utils : CoroutineScope {
                     icon = member.avatar?.url
                     text = "Member: ${member.tag} (${member.id})"
                 }
+                timestamp = time
+            }
+        }
+    }
+
+    fun sendCaseUpdateLog(guild: Guild, caseID: Number, oldContent: String, newContent: String, moderator: Member, time: Instant) {
+        launch {
+            val channel = guild.getChannelOf<TextChannel>(MODERATION_LOG_CHANNEL_ID)
+            channel.createEmbed {
+                title = "Update to case #$caseID"
+                field {
+                    name = "Old contents"
+                    value = oldContent
+                }
+                field {
+                    name = "New contents"
+                    value = newContent
+                }
+                footer {
+                    text = "Updated by: ${moderator.displayName} (${moderator.username}) (ID: ${moderator.id})"
+                    icon = moderator.avatar?.url
+                }
+                color = Cases.getCase(caseID).toColor()
                 timestamp = time
             }
         }

@@ -5,30 +5,25 @@ import com.kotlindiscord.kord.extensions.commands.converters.impl.string
 import com.kotlindiscord.kord.extensions.commands.converters.impl.user
 import com.kotlindiscord.kord.extensions.commands.converters.impl.int
 import com.kotlindiscord.kord.extensions.extensions.Extension
-import com.kotlindiscord.kord.extensions.extensions.chatCommand
 import com.kotlindiscord.kord.extensions.extensions.publicSlashCommand
 import com.kotlindiscord.kord.extensions.types.respond
-import com.kotlindiscord.kord.extensions.utils.dm
-import com.kotlindiscord.kord.extensions.utils.respond
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.rest.builder.message.create.embed
 import org.ecorous.webcrawler.SERVER_ID
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import com.kotlindiscord.kord.extensions.DISCORD_RED
-import com.kotlindiscord.kord.extensions.utils.selfMember
+import com.kotlindiscord.kord.extensions.commands.application.slash.publicSubCommand
+import com.kotlindiscord.kord.extensions.types.respondEphemeral
 import dev.kord.common.entity.Permission
 import dev.kord.core.behavior.ban
-import dev.kord.rest.builder.message.EmbedBuilder
 import kotlinx.datetime.Clock
 import org.ecorous.webcrawler.CaseType
 import org.ecorous.webcrawler.Cases
+import org.ecorous.webcrawler.Cases.updateContent
+import org.ecorous.webcrawler.Cases.delete
 import org.ecorous.webcrawler.Cases.toColor
 import org.ecorous.webcrawler.Utils
 import org.ecorous.webcrawler.Utils.getUsername
-import java.time.ZoneOffset
-import java.time.temporal.TemporalAccessor
 
 @OptIn(KordPreview::class)
 class ModerationExtension : Extension() {
@@ -113,37 +108,63 @@ class ModerationExtension : Extension() {
             }
         }
 
-        publicSlashCommand(::CaseInfoArgs) {
-            name = "caseinfo"
-            description = "Lookup information about a case"
+        publicSlashCommand {
+            name = "case"
+            description = "Manage cases"
             requirePermission(Permission.ModerateMembers)
-            action {
-                val case = Cases.getCase(arguments.number)
-                val caseUser = this.guild!!.kord.getUser(case.userId)!!
-                val caseModerator = this.guild!!.kord.getUser(case.moderatorId)!!
-                respond {
-                    embed {
-                        title = "Case #${case.id}"
-                        color = case.toColor()
-                        field {
-                            name = "Type"
-                            value = case.type.name
-                        }
-                        field {
-                            name = when (case.type) {
-                                CaseType.NOTE -> "Content"
-                                else -> "Reason"
+            publicSubCommand(::GetCaseArgs) {
+                name = "get"
+                description = "Get information about a case"
+                action {
+                    val case = Cases.getCase(arguments.number)
+                    val caseUser = this.guild!!.kord.getUser(case.userId)!!
+                    val caseModerator = this.guild!!.kord.getUser(case.moderatorId)!!
+                    respond {
+                        embed {
+                            title = "Case #${case.id}"
+                            color = case.toColor()
+                            field {
+                                name = "Type"
+                                value = case.type.name
                             }
-                            value = case.content
+                            field {
+                                name = when (case.type) {
+                                    CaseType.NOTE -> "Content"
+                                    else -> "Reason"
+                                }
+                                value = case.content
+                            }
+                            field {
+                                name = "User"
+                                value = "${caseUser.getUsername()} (${caseUser.mention} - ${caseUser.id}"
+                            }
+                            footer {
+                                icon = caseModerator.avatar?.url
+                                text = "${caseModerator.getUsername()} (${caseModerator.id})"
+                            }
                         }
-                        field {
-                            name = "User"
-                            value = "${caseUser.getUsername()} (${caseUser.mention} - ${caseUser.id}"
-                        }
-                        footer {
-                            icon = caseModerator.avatar?.url
-                            text = "${caseModerator.getUsername()} (${caseModerator.id})"
-                        }
+                    }
+                }
+            }
+            publicSubCommand(::DeleteCaseArgs) {
+                name = "delete"
+                description = "Delete a case"
+                action {
+                    val case = Cases.getCase(arguments.number)
+                    case.delete()
+                    respondEphemeral {
+                        content = "Deleted case #${case.id}"
+                    }
+                }
+            }
+            publicSubCommand(::ModifyCaseArgs) {
+                name = "modify"
+                description = "Modify a case"
+                action {
+                    val case = Cases.getCase(arguments.number)
+                    case.updateContent(arguments.newContent, user.fetchMember(guild!!.id))
+                    respond {
+                        content = "Updated case #${case.id}"
                     }
                 }
             }
@@ -187,10 +208,28 @@ class ModerationExtension : Extension() {
         }
     }
 
-    inner class CaseInfoArgs : Arguments() {
+    inner class GetCaseArgs : Arguments() {
         val number by int {
             name = "number"
-            description = "The case number to lookup"
+            description = "The number of the case to get"
+        }
+    }
+
+    inner class DeleteCaseArgs : Arguments() {
+        val number by int {
+            name = "number"
+            description = "The number of the case to delete"
+        }
+    }
+
+    inner class ModifyCaseArgs : Arguments() {
+        val number by int {
+            name = "number"
+            description = "The number of the case to modify"
+        }
+        val newContent by string {
+            name = "new_content"
+            description = "The new content of the case"
         }
     }
 }

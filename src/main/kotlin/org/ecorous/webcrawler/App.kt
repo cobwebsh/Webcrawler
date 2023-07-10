@@ -30,13 +30,15 @@ val MESSAGE_LOG_CHANNEL_ID = Snowflake(
     env("MESSAGE_LOG_CHANNEL").toLong()
 )
 
+lateinit var bot: ExtensibleBot
+
 private val TOKEN = env("TOKEN")   // Get the bot' token from the env vars or a .env file
 
 
 @OptIn(PrivilegedIntent::class)
 suspend fun main() {
     DB.setup()
-    val bot = ExtensibleBot(TOKEN) {
+    bot = ExtensibleBot(TOKEN) {
         intents {
             +Intent.GuildMembers
         }
