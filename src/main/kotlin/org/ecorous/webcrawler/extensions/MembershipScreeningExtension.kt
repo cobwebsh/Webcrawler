@@ -46,14 +46,14 @@ class MembershipScreeningExtension : Extension() {
 						if (event.getGuildOrNull() != null) {
 							val guild = event.getGuildOrNull()!!
 						    val applicationMember = guild.members.firstOrNull {
-                                it.tag == userText
+                                it.username == userText
                             }
                             var buttonMessage: Message? = null
                             var applicationThread: TextChannelThread? = null
                             buttonMessage = channel.createMessage {
 							    embed {
                                     author {
-                                        name = applicationMember?.username + "#" + applicationMember?.discriminator
+                                        name = applicationMember?.username
                                         icon = applicationMember?.avatar?.url
                                     }
                                     description = applicationMember?.mention
@@ -71,11 +71,11 @@ class MembershipScreeningExtension : Extension() {
                                             applicationMember?.addRole(DB.getConfigSnowflake("role.verified"), "Application accepted by ${memberX.username}#${memberX.discriminator} (${memberX.id})")
                                             channel.createEmbed {
                                                 author {
-                                                    name = memberX.username + "#" + memberX.discriminator
+                                                    name = memberX.username
                                                     icon = memberX.avatar?.url
                                                 }
                                                 color = DISCORD_GREEN
-                                                title = "User ${applicationMember?.username}#${applicationMember?.discriminator} accepted"
+                                                title = "User ${applicationMember?.username} accepted"
                                             }
                                             buttonMessage?.delete()
                                         }
@@ -94,14 +94,14 @@ class MembershipScreeningExtension : Extension() {
                                                 title = "You have been denied access to the server."
                                                 description = "If not, please send a messasge to Ecorous#9052 (<@604653220341743618>)"
                                             }
-                                            applicationMember.kick("Application denied by ${memberX.username}#${memberX.discriminator} (${memberX.id})")
+                                            applicationMember.kick("Application denied by ${memberX.username} (${memberX.id})")
                                             channel.createEmbed {
                                                 author {
-                                                    name = "${memberX.username}#${memberX.discriminator}"
+                                                    name = "${memberX.username}"
                                                     icon = memberX.avatar?.url
                                                 }
                                                 color = DISCORD_RED
-                                                title = "User ${applicationMember.username}#${applicationMember.discriminator} denied"
+                                                title = "User ${applicationMember.username} denied"
                                             }
                                         }
                                     }
@@ -114,7 +114,7 @@ class MembershipScreeningExtension : Extension() {
                                                 content = "You do not have permission to perform this action"
                                             } else return@action
                                             val accessChannel = guild.getChannel(ACCESS_CHANNEL_ID) as TextChannel
-                                            val thread = accessChannel.startPrivateThread("Application Thread for ${applicationMember?.username}#${applicationMember?.discriminator}") {
+                                            val thread = accessChannel.startPrivateThread("Application Thread for ${applicationMember?.username}") {
                                                 autoArchiveDuration = ArchiveDuration.Day
                                             }
                                             applicationThread = thread
