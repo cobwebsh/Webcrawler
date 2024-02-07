@@ -125,6 +125,7 @@ class ModerationExtension : Extension() {
             action {
                 var shouldSendDmFailedSuccess = false
                 val u = bot.kordRef.getUser(arguments.target)
+                try {
                 u?.let {
                     val channel = u.getDmChannelOrNull()
                     channel?.createEmbed {
@@ -143,6 +144,9 @@ class ModerationExtension : Extension() {
                         }
                         color = DISCORD_RED
                     } ?: { shouldSendDmFailedSuccess = true }
+                }
+                } catch (e: Exception) {
+                    shouldSendDmFailedSuccess = true
                 }
                 guild?.fetchGuild()?.ban(arguments.target) {
                     reason = arguments.reason
