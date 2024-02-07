@@ -5,6 +5,7 @@ import com.kotlindiscord.kord.extensions.DISCORD_RED
 import com.kotlindiscord.kord.extensions.DISCORD_WHITE
 import com.kotlindiscord.kord.extensions.DISCORD_YELLOW
 import com.kotlindiscord.kord.extensions.utils.getJumpUrl
+import dev.kord.common.entity.Snowflake
 import dev.kord.core.behavior.*
 import dev.kord.core.behavior.channel.*
 import dev.kord.core.entity.*
@@ -20,7 +21,7 @@ import kotlin.coroutines.CoroutineContext
 
 
 object Utils : CoroutineScope {
-    fun sendModLog(guild: Guild, moderator: Member, user: User, type: CaseType, reason: String?, time: Instant, case: Case) {
+    fun sendModLog(guild: Guild, moderator: Member, user: User?, type: CaseType, reason: String?, time: Instant, case: Case, userId: Snowflake? = null) {
         launch {
             val channel = guild.getChannelOf<TextChannel>(MODERATION_LOG_CHANNEL_ID)
             channel.createEmbed {
@@ -43,8 +44,12 @@ object Utils : CoroutineScope {
                     CaseType.NOTE -> DISCORD_WHITE
                 }
                 author {
-                    icon = user.avatar?.url
-                    name = "Member: ${user.tag} (${user.id})"
+                    if (user != null) {
+                        icon = user.avatar?.url
+                        name = "Member: ${user.tag} (${user.id})"
+                    } else {
+                        name = "Member: $userId (could not fetch user, probably a forceban)"
+                    }
                 }
                 footer {
                     icon = moderator.avatar?.url

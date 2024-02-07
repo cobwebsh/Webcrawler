@@ -1,27 +1,28 @@
 package org.ecorous.webcrawler.extensions
 
+import com.kotlindiscord.kord.extensions.DISCORD_RED
 import com.kotlindiscord.kord.extensions.commands.Arguments
+import com.kotlindiscord.kord.extensions.commands.application.slash.publicSubCommand
+import com.kotlindiscord.kord.extensions.commands.converters.impl.int
+import com.kotlindiscord.kord.extensions.commands.converters.impl.snowflake
 import com.kotlindiscord.kord.extensions.commands.converters.impl.string
 import com.kotlindiscord.kord.extensions.commands.converters.impl.user
-import com.kotlindiscord.kord.extensions.commands.converters.impl.int
 import com.kotlindiscord.kord.extensions.extensions.Extension
 import com.kotlindiscord.kord.extensions.extensions.publicSlashCommand
 import com.kotlindiscord.kord.extensions.types.respond
-import dev.kord.common.annotation.KordPreview
-import dev.kord.core.behavior.channel.createEmbed
-import dev.kord.rest.builder.message.create.embed
-import org.ecorous.webcrawler.SERVER_ID
-import com.kotlindiscord.kord.extensions.DISCORD_RED
-import com.kotlindiscord.kord.extensions.commands.application.slash.publicSubCommand
 import com.kotlindiscord.kord.extensions.types.respondEphemeral
+import dev.kord.common.annotation.KordPreview
 import dev.kord.common.entity.Permission
 import dev.kord.core.behavior.ban
+import dev.kord.core.behavior.channel.createEmbed
+import dev.kord.rest.builder.message.create.embed
 import kotlinx.datetime.Clock
 import org.ecorous.webcrawler.CaseType
 import org.ecorous.webcrawler.Cases
-import org.ecorous.webcrawler.Cases.updateContent
 import org.ecorous.webcrawler.Cases.delete
 import org.ecorous.webcrawler.Cases.toColor
+import org.ecorous.webcrawler.Cases.updateContent
+import org.ecorous.webcrawler.SERVER_ID
 import org.ecorous.webcrawler.Utils
 import org.ecorous.webcrawler.Utils.getUsername
 
@@ -41,7 +42,8 @@ class ModerationExtension : Extension() {
                 val channel = arguments.target.getDmChannel()
                 channel.createEmbed {
                     title = "Kicked!"
-                    description = "${arguments.target.mention}, you have been kicked from `${guild?.fetchGuild()?.name}`\nYou can re-join with a new invite link, but any further issues will be punished with a ban."
+                    description =
+                        "${arguments.target.mention}, you have been kicked from `${guild?.fetchGuild()?.name}`\nYou can re-join with a new invite link, but any further issues will be punished with a ban."
                     footer {
                         text = "Moderator: ${user.asUser().tag} (${user.asUser().id})"
                         icon = user.asUser().avatar?.url
@@ -55,14 +57,22 @@ class ModerationExtension : Extension() {
                     color = DISCORD_RED
                 }
                 guild!!.fetchGuild().kick(arguments.target.id, arguments.reason)
-                Utils.sendModLog(guild!!.fetchGuild(), user.fetchMember(guild!!.id), arguments.target, CaseType.KICK, arguments.reason, Clock.System.now(), Cases.reportCase(CaseType.KICK, arguments.target.id, user.id, arguments.reason))
+                Utils.sendModLog(
+                    guild!!.fetchGuild(),
+                    user.fetchMember(guild!!.id),
+                    arguments.target,
+                    CaseType.KICK,
+                    arguments.reason,
+                    Clock.System.now(),
+                    Cases.reportCase(CaseType.KICK, arguments.target.id, user.id, arguments.reason)
+                )
                 respond {
                     content = "Kicked ${arguments.target.mention}!"
                 }
             }
         }
 
-        publicSlashCommand (::BanArgs) {
+        publicSlashCommand(::BanArgs) {
             name = "ban"
             description = "Ban a user from the server"
 
@@ -73,7 +83,8 @@ class ModerationExtension : Extension() {
                 val channel = arguments.target.getDmChannel()
                 channel.createEmbed {
                     title = "Banned!"
-                    description = "${arguments.target.mention}, you have been banned from `${guild?.fetchGuild()?.name}`!\nTo appeal, message `ecorous` (<@604653220341743618>)."
+                    description =
+                        "${arguments.target.mention}, you have been banned from `${guild?.fetchGuild()?.name}`!\nTo appeal, message `ecorous` (<@604653220341743618>)."
                     footer {
                         text = "Moderator: ${user.asUser().tag} (${user.asUser().id})"
                         icon = user.asUser().avatar?.url
@@ -86,12 +97,75 @@ class ModerationExtension : Extension() {
                     }
                     color = DISCORD_RED
                 }
-                guild?.fetchGuild()?.ban (arguments.target.id) {
+                guild?.fetchGuild()?.ban(arguments.target.id) {
                     reason = arguments.reason
                 }
-                Utils.sendModLog(guild!!.fetchGuild(), user.fetchMember(guild!!.id), arguments.target, CaseType.BAN, arguments.reason, Clock.System.now(), Cases.reportCase(CaseType.BAN, arguments.target.id, user.id, arguments.reason))
+                Utils.sendModLog(
+                    guild!!.fetchGuild(),
+                    user.fetchMember(guild!!.id),
+                    arguments.target,
+                    CaseType.BAN,
+                    arguments.reason,
+                    Clock.System.now(),
+                    Cases.reportCase(CaseType.BAN, arguments.target.id, user.id, arguments.reason)
+                )
                 respond {
                     content = "Banned ${arguments.target.mention} (${arguments.target.id})!"
+                }
+            }
+        }
+
+        publicSlashCommand(::ForceBanArgs) {
+            name = "forceban"
+            description = "Ban a user from the server without needing to be in the server"
+
+            guild(SERVER_ID)
+            requirePermission(Permission.BanMembers)
+            requireBotPermissions(Permission.BanMembers)
+            action {
+                var shouldSendDmFailedSuccess = false
+                val u = bot.kordRef.getUser(arguments.target)
+                u?.let {
+                    val channel = u.getDmChannelOrNull()
+                    channel?.createEmbed {
+                        title = "Banned!"
+                        description =
+                            "You have been banned from `${guild?.fetchGuild()?.name}`!\nTo appeal, message `ecorous` (<@604653220341743618>)."
+                        footer {
+                            text = "Moderator: ${user.asUser().tag} (${user.asUser().id})"
+                            icon = user.asUser().avatar?.url
+                        }
+                        timestamp = Clock.System.now()
+                        field {
+                            name = "Reason"
+                            value = arguments.reason
+                            inline = false
+                        }
+                        color = DISCORD_RED
+                    } ?: { shouldSendDmFailedSuccess = true }
+                }
+                guild?.fetchGuild()?.ban(arguments.target) {
+                    reason = arguments.reason
+                }
+                Utils.sendModLog(
+                    guild!!.fetchGuild(),
+                    user.fetchMember(guild!!.id),
+                    null, // we don't have a user object, nor a member object
+                    CaseType.BAN,
+                    arguments.reason,
+                    Clock.System.now(),
+                    Cases.reportCase(CaseType.BAN, arguments.target, user.id, arguments.reason),
+                    arguments.target // we send the user id instead of the user object
+                )
+                if (shouldSendDmFailedSuccess) {
+                    respond {
+                        content = "Banned <@${arguments.target}>! (DM failed)"
+                    }
+                } else {
+                    respond {
+                        content = "Banned <@${arguments.target}>!"
+                    }
+
                 }
             }
         }
@@ -101,7 +175,15 @@ class ModerationExtension : Extension() {
             description = "Add a moderation note to a user"
             requirePermission(Permission.ModerateMembers)
             action {
-                Utils.sendModLog(guild!!.fetchGuild(), user.fetchMember(guild!!.id), arguments.user, CaseType.NOTE, arguments.content, Clock.System.now(), Cases.reportCase(CaseType.NOTE, arguments.user.id, user.id, arguments.content))
+                Utils.sendModLog(
+                    guild!!.fetchGuild(),
+                    user.fetchMember(guild!!.id),
+                    arguments.user,
+                    CaseType.NOTE,
+                    arguments.content,
+                    Clock.System.now(),
+                    Cases.reportCase(CaseType.NOTE, arguments.user.id, user.id, arguments.content)
+                )
                 respond {
                     content = "Added note to ${arguments.user.mention} (${arguments.user.id})"
                 }
@@ -188,6 +270,19 @@ class ModerationExtension : Extension() {
         val target by user {
             name = "user"
             description = "Member to ban"
+        }
+
+        val reason by string {
+            name = "reason"
+            description = "The reason to ban this member"
+            maxLength = 512
+        }
+    }
+
+    inner class ForceBanArgs : Arguments() {
+        val target by snowflake {
+            name = "user"
+            description = "User ID to ban"
         }
 
         val reason by string {
